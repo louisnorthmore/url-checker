@@ -13,6 +13,8 @@
 ini_set('default_socket_timeout', 2);
 
 $urls = file('urls.csv');
+$this_log = date('Y_m_d-His').'.csv';
+file_put_contents('broken_'.$this_log, "http_code,url,expected,actual\n");
 
 $working_urls = 0;
 $broken_urls  = 0;
@@ -52,6 +54,7 @@ function checkUrl($source, $dest)
     global $working_urls;
     global $broken_urls;
     global $error_urls;
+    global $this_log;
 
     $info = get_headers($source);
 
@@ -71,6 +74,10 @@ function checkUrl($source, $dest)
             echo "Error\r\n\r\n";
         } else {
             echo "Redirect incorrect ($http_code) Expected: ($dest)\r\nGot: ($actual_dest)\r\n\r\n";
+
+            //log
+            file_put_contents('broken_'.$this_log, "$http_code,$source,$dest,$actual_dest\n", FILE_APPEND);
+
             $broken_urls++;
         }
     }
